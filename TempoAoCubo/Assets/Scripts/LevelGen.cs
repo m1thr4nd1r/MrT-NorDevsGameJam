@@ -3,17 +3,26 @@ using System.Collections;
 
 public class LevelGen : MonoBehaviour {
 
-    GameObject player, lastPlatform, template, newPlatform;
+    GameObject player, lastPlatform, template, newPlatform, sand;
 
     float fix;
 
 	void Start () {
         player = GameObject.FindGameObjectWithTag("Player");
+        //sand = GameObject.FindGameObjectWithTag("Sand");
+        sand = Resources.Load<GameObject>("Sand");
         lastPlatform = newPlatform = null;
         template = GameObject.FindGameObjectWithTag("Platform");
         //InvokeRepeating("platGen", 0, 5);
         InvokeRepeating("IncreaseCamera", 0.05f, 0.05f);
+        InvokeRepeating("dropSand", 0, 0.5f);
         fix = 0;
+    }
+
+    void dropSand()
+    {
+        GameObject ob = Instantiate(sand);
+        ob.transform.position = Camera.main.ViewportToWorldPoint(new Vector3(Random.value, 1, 10));
     }
 
     void IncreaseCamera()
