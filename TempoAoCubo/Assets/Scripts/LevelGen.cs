@@ -27,7 +27,7 @@ public class LevelGen : MonoBehaviour {
 
     void IncreaseCamera()
     {
-        Camera.main.gameObject.transform.position += Vector3.up * 0.05f;
+        //Camera.main.gameObject.transform.position += Vector3.up * 0.05f;
     }
 	
     void platGen()
