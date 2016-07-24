@@ -27,12 +27,12 @@ public class LevelGen : MonoBehaviour {
 
     void IncreaseCamera()
     {
-        //Camera.main.gameObject.transform.position += Vector3.up * 0.05f;
+        Camera.main.gameObject.transform.position += Vector3.up * 0.05f;
     }
 	
     void platGen()
     {
-        newPlatform = Instantiate<GameObject>(template);
+        newPlatform = Instantiate(template);
         if (lastPlatform != null)
             fix = lastPlatform.transform.position.x > Camera.main.pixelWidth / 2 ? 0.5f : -0.5f;
         newPlatform.transform.position = Camera.main.ViewportToWorldPoint(new Vector3(Mathf.Clamp(Random.value + fix, 0, 1), 1));//Camera.main.ViewportToWorldPoint(new Vector3(1, 0, Camera.main.nearClipPlane)) + Vector3.right * Random.Range(5, Camera.main.pixelWidth - 5);

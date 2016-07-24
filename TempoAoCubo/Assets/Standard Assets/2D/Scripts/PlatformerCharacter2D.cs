@@ -45,11 +45,13 @@ namespace UnityStandardAssets._2D
             // This can be done using layers instead but Sample Assets will not overwrite your project settings.
             Collider2D[] colliders = Physics2D.OverlapCircleAll(m_GroundCheck.position, k_GroundedRadius, m_WhatIsGround);
             for (int i = 0; i < colliders.Length; i++)
-            {
                 if (colliders[i].gameObject != gameObject)
+                {
                     m_Grounded = true;
-            }
-            //m_Anim.SetBool("Ground", m_Grounded);
+                    break;
+                }
+
+            //m_Anim.SetBool("grounded", m_Grounded);
 
             // Set the vertical animation
             //m_Anim.SetFloat("vSpeed", m_Rigidbody2D.velocity.y);
@@ -100,11 +102,11 @@ namespace UnityStandardAssets._2D
             }
 
             // If the player should jump...
-            if (m_Grounded && jump)// && m_Anim.GetBool("Ground"))
+            if (m_Grounded && jump) // && m_Anim.GetBool("Ground"))
             {
                 // Add a vertical force to the player.
                 m_Grounded = false;
-                //m_Anim.SetBool("Ground", false);
+                //m_Anim.SetBool("grounded", m_Grounded);
                 m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
                 AudioSource.PlayClipAtPoint(Resources.Load<AudioClip>("Personagem principal Jump"), transform.position);
             }
