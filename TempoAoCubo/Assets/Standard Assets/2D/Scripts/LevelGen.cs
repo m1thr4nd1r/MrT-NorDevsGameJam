@@ -30,6 +30,11 @@ public class LevelGen : MonoBehaviour {
         Camera.main.gameObject.transform.position += Vector3.up * 0.05f;
     }
 	
+	public void StopCamera()
+	{
+		StopAllCoroutines();
+	}
+
     void platGen()
     {
         newPlatform = Instantiate(template);

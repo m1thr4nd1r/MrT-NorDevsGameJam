@@ -19,8 +19,7 @@ namespace UnityStandardAssets._2D
         private Animator m_Anim;            // Reference to the player's animator component.
         private Rigidbody2D m_Rigidbody2D;
         private bool m_FacingRight = true;  // For determining which way the player is currently facing.
-        private AudioSource audio;
-
+		
         private void Awake()
         {
             // Setting up references.
@@ -28,13 +27,15 @@ namespace UnityStandardAssets._2D
             m_CeilingCheck = transform.Find("CeilingCheck");
             m_Anim = GetComponent<Animator>();
             m_Rigidbody2D = GetComponent<Rigidbody2D>();
-            audio = GetComponent<AudioSource>();
         }
 
         void Update()
         {
-            if (Input.GetKeyDown(KeyCode.R))
-                UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+			if (Input.GetKeyDown(KeyCode.R))
+			{
+				Time.timeScale = 1;
+				UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+			}
         }
 
         private void FixedUpdate()
@@ -112,7 +113,6 @@ namespace UnityStandardAssets._2D
             }
         }   
 
-
         private void Flip()
         {
             // Switch the way the player is labelled as facing.
@@ -126,20 +126,20 @@ namespace UnityStandardAssets._2D
 
         void die()
         {
-            AudioSource.PlayClipAtPoint(Resources.Load<AudioClip>("Mr T Death 01"), transform.position);
-            enabled = false;
-            //Destroy(this);
-        }
+			Time.timeScale = 1;
+			UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+		}
 
-        void pauseGame()
+		void OnCollisionEnter2D(Collision2D c)
         {
-            Time.timeScale = 0;
-        }
-
-        void OnCollisionEnter2D(Collision2D c)
-        {
-            if (c.collider.name.Contains("Wall"))
-                die();
-        }
+			if (c.collider.name.Contains("Wall"))
+			{
+				AudioSource.PlayClipAtPoint(Resources.Load<AudioClip>("Mr T Death 01"), transform.position);
+				LevelGen t = Camera.main.gameObject.GetComponent<LevelGen>();
+				//t.StopCamera();
+				Invoke("die", 2);
+				Time.timeScale = 0;
+			}
+		}
     }
 }
