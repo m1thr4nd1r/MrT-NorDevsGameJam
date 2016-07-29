@@ -6,6 +6,7 @@ public class LevelGen : MonoBehaviour {
     GameObject player, lastPlatform, template, newPlatform, sand;
 
     float fix;
+	float begin;
 
 	void Start () {
         player = GameObject.FindGameObjectWithTag("Player");
@@ -17,6 +18,8 @@ public class LevelGen : MonoBehaviour {
         InvokeRepeating("IncreaseCamera", 0.05f, 0.05f);
         InvokeRepeating("dropSand", 0, 0.5f);
         fix = 0;
+		begin = Time.time;
+		//goLeft();
     }
 
     void dropSand()
@@ -27,9 +30,27 @@ public class LevelGen : MonoBehaviour {
 
     void IncreaseCamera()
     {
-        Camera.main.gameObject.transform.position += Vector3.up * 0.05f;
+		Vector3 v = Vector3.up * 0.05f;
+
+		if (Time.time - begin > 5 && Time.time - begin < 13)
+			v += Vector3.right * 0.05f;
+		else if (Time.time - begin > 26 && Time.time - begin < 30)
+			v += Vector3.left * 0.05f;
+
+		print("Time - begin: " + (Time.time - begin));
+		transform.position += v;
     }
 	
+	public void goLeft()
+	{
+		transform.position = Vector3.Lerp(transform.position, transform.position + Vector3.left * 5, 3/5);
+	}
+
+	public void goRight()
+	{
+		transform.position = Vector3.Lerp(transform.position, transform.position - Vector3.left * 5, 10f);
+	}
+
 	public void StopCamera()
 	{
 		StopAllCoroutines();

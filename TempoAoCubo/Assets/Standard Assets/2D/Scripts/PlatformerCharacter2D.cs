@@ -12,8 +12,8 @@ namespace UnityStandardAssets._2D
         [SerializeField] private LayerMask m_WhatIsGround;                  // A mask determining what is ground to the character
 
         private Transform m_GroundCheck;    // A position marking where to check if the player is grounded.
-        const float k_GroundedRadius = .2f; // Radius of the overlap circle to determine if grounded
-        private bool m_Grounded;            // Whether or not the player is grounded.
+		public float k_GroundedRadius = .35f; // Radius of the overlap circle to determine if grounded
+        private bool m_Grounded = false;            // Whether or not the player is grounded.
         private Transform m_CeilingCheck;   // A position marking where to check for ceilings
         const float k_CeilingRadius = .01f; // Radius of the overlap circle to determine if the player can stand up
         private Animator m_Anim;            // Reference to the player's animator component.
@@ -32,10 +32,7 @@ namespace UnityStandardAssets._2D
         void Update()
         {
 			if (Input.GetKeyDown(KeyCode.R))
-			{
-				Time.timeScale = 1;
-				UnityEngine.SceneManagement.SceneManager.LoadScene(0);
-			}
+				die();
         }
 
         private void FixedUpdate()
@@ -45,21 +42,24 @@ namespace UnityStandardAssets._2D
             // The player is grounded if a circlecast to the groundcheck position hits anything designated as ground
             // This can be done using layers instead but Sample Assets will not overwrite your project settings.
             Collider2D[] colliders = Physics2D.OverlapCircleAll(m_GroundCheck.position, k_GroundedRadius, m_WhatIsGround);
-            for (int i = 0; i < colliders.Length; i++)
-                if (colliders[i].gameObject != gameObject)
-                {
-                    m_Grounded = true;
-                    break;
-                }
+			for (int i = 0; i < colliders.Length; i++)
+			{
+				print(colliders[i].name);
+				if (colliders[i].gameObject != gameObject)
+				{
+					m_Grounded = true;
+					break;
+				}
+			}
 
-            //m_Anim.SetBool("grounded", m_Grounded);
+			m_Anim.SetBool("grounded", m_Grounded);
+			//print(m_Grounded);
+			// Set the vertical animation
+			//m_Anim.SetFloat("vSpeed", m_Rigidbody2D.velocity.y);
+		}
 
-            // Set the vertical animation
-            //m_Anim.SetFloat("vSpeed", m_Rigidbody2D.velocity.y);
-        }
 
-
-        public void Move(float move, bool crouch, bool jump)
+		public void Move(float move, bool crouch, bool jump)
         {
             // If crouching, check to see if the character can stand up
             /*
@@ -103,12 +103,12 @@ namespace UnityStandardAssets._2D
             }
 
             // If the player should jump...
-            if (m_Grounded && jump) // && m_Anim.GetBool("Ground"))
+            if (m_Grounded && jump && m_Anim.GetBool("grounded"))
             {
                 // Add a vertical force to the player.
-                m_Grounded = false;
-                //m_Anim.SetBool("grounded", m_Grounded);
-                m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
+                //m_Grounded = false;
+                m_Anim.SetBool("grounded", m_Grounded);
+				m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
                 AudioSource.PlayClipAtPoint(Resources.Load<AudioClip>("Personagem principal Jump"), transform.position);
             }
         }   
@@ -138,6 +138,15 @@ namespace UnityStandardAssets._2D
 				LevelGen t = Camera.main.gameObject.GetComponent<LevelGen>();
 				//t.StopCamera();
 				Invoke("die", 2);
+				Time.timeScale = 0;
+			}
+			else if (c.collider.name.Contains("Sand"))
+			{
+				AudioSource.PlayClipAtPoint(Resources.Load<AudioClip>("Mr T Hurt 02"), transform.position);
+				//LevelGen t = Camera.main.gameObject.GetComponent<LevelGen>();
+				//t.StopCamera();
+
+				Invoke("die", 1);
 				Time.timeScale = 0;
 			}
 		}
