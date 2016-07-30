@@ -12,22 +12,33 @@ namespace UnityStandardAssets._2D
         [SerializeField] private LayerMask m_WhatIsGround;                  // A mask determining what is ground to the character
 
         private Transform m_GroundCheck;    // A position marking where to check if the player is grounded.
-		public float k_GroundedRadius = .35f; // Radius of the overlap circle to determine if grounded
+		const float k_GroundedRadius = .35f; // Radius of the overlap circle to determine if grounded
         private bool m_Grounded = false;            // Whether or not the player is grounded.
         private Transform m_CeilingCheck;   // A position marking where to check for ceilings
-        const float k_CeilingRadius = .01f; // Radius of the overlap circle to determine if the player can stand up
+        float k_CeilingRadius = .01f; // Radius of the overlap circle to determine if the player can stand up
         private Animator m_Anim;            // Reference to the player's animator component.
         private Rigidbody2D m_Rigidbody2D;
         private bool m_FacingRight = true;  // For determining which way the player is currently facing.
-		
-        private void Awake()
+		private AudioSource steps;
+		public GameObject menu;
+		private bool alive;
+		private float timeStart;
+
+		private void Awake()
         {
             // Setting up references.
             m_GroundCheck = transform.Find("GroundCheck");
             m_CeilingCheck = transform.Find("CeilingCheck");
             m_Anim = GetComponent<Animator>();
             m_Rigidbody2D = GetComponent<Rigidbody2D>();
+			steps = GetComponents<AudioSource>()[1];
+			alive = true;
         }
+
+		void Start()
+		{
+			timeStart = Time.time;
+		}
 
         void Update()
         {
@@ -37,14 +48,22 @@ namespace UnityStandardAssets._2D
 
         private void FixedUpdate()
         {
-            m_Grounded = false;
+			if (!alive)
+				return;
 
-            // The player is grounded if a circlecast to the groundcheck position hits anything designated as ground
-            // This can be done using layers instead but Sample Assets will not overwrite your project settings.
-            Collider2D[] colliders = Physics2D.OverlapCircleAll(m_GroundCheck.position, k_GroundedRadius, m_WhatIsGround);
+			m_Grounded = false;
+
+			// The player is grounded if a circlecast to the groundcheck position hits anything designated as ground
+			// This can be done using layers instead but Sample Assets will not overwrite your project settings.
+			Collider2D[] colliders = Physics2D.OverlapCircleAll(m_GroundCheck.position, k_GroundedRadius, m_WhatIsGround);
 			for (int i = 0; i < colliders.Length; i++)
 			{
 				print(colliders[i].name);
+				if (colliders[i].gameObject.name.Equals("Win"))
+				{
+					AudioSource.PlayClipAtPoint(Resources.Load<AudioClip>("Personagem principal Falling"), transform.position);
+					win();
+				}
 				if (colliders[i].gameObject != gameObject)
 				{
 					m_Grounded = true;
@@ -58,9 +77,26 @@ namespace UnityStandardAssets._2D
 			//m_Anim.SetFloat("vSpeed", m_Rigidbody2D.velocity.y);
 		}
 
+		void win()
+		{
+			alive = false;
+			m_Anim.Stop();
+			GetComponent<AudioSource>().Stop();
+			Camera.main.GetComponent<LevelGen>().StopCamera();
 
+			//Time.timeScale = 0;
+			if (menu != null)
+			{
+				menu.GetComponent<Tempo>().setTime(timeStart);
+				menu.SetActive(true);
+			}
+		}
+		
 		public void Move(float move, bool crouch, bool jump)
         {
+			if (!alive)
+				return;
+
             // If crouching, check to see if the character can stand up
             /*
             if (!crouch && m_Anim.GetBool("Crouch"))
@@ -84,6 +120,10 @@ namespace UnityStandardAssets._2D
                 // The Speed animator parameter is set to the absolute value of the horizontal input.
                 //m_Anim.SetFloat("Speed", Mathf.Abs(move));
                 m_Anim.SetBool("movement", Mathf.Abs(move) > 0);
+				if (Mathf.Abs(move) > 0 && !steps.isPlaying && m_Grounded)
+					steps.Play();
+				else if (!m_Grounded || move == 0)
+					steps.Stop();
                 
                 // Move the character
                 m_Rigidbody2D.velocity = new Vector2(move*m_MaxSpeed, m_Rigidbody2D.velocity.y);
@@ -115,6 +155,8 @@ namespace UnityStandardAssets._2D
 
         private void Flip()
         {
+			if (!alive)
+				return;
             // Switch the way the player is labelled as facing.
             m_FacingRight = !m_FacingRight;
 
@@ -132,13 +174,16 @@ namespace UnityStandardAssets._2D
 
 		void OnCollisionEnter2D(Collision2D c)
         {
+			if (!alive)
+				return;
+
 			if (c.collider.name.Contains("Wall"))
 			{
 				AudioSource.PlayClipAtPoint(Resources.Load<AudioClip>("Mr T Death 01"), transform.position);
 				LevelGen t = Camera.main.gameObject.GetComponent<LevelGen>();
 				//t.StopCamera();
-				Invoke("die", 2);
-				Time.timeScale = 0;
+				Invoke("win", 0.5f);
+				alive = false;
 			}
 			else if (c.collider.name.Contains("Sand"))
 			{
@@ -146,8 +191,8 @@ namespace UnityStandardAssets._2D
 				//LevelGen t = Camera.main.gameObject.GetComponent<LevelGen>();
 				//t.StopCamera();
 
-				Invoke("die", 1);
-				Time.timeScale = 0;
+				Invoke("win", 0);
+				alive = false;
 			}
 		}
     }

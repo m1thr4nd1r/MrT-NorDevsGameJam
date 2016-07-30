@@ -7,16 +7,18 @@ public class LevelGen : MonoBehaviour {
 
     float fix;
 	float begin;
+	bool alive;
 
 	void Start () {
-        player = GameObject.FindGameObjectWithTag("Player");
+		alive = true;
+		player = GameObject.FindGameObjectWithTag("Player");
         //sand = GameObject.FindGameObjectWithTag("Sand");
         sand = Resources.Load<GameObject>("Sand");
         lastPlatform = newPlatform = null;
         template = GameObject.FindGameObjectWithTag("Platform");
         //InvokeRepeating("platGen", 0, 5);
         InvokeRepeating("IncreaseCamera", 0.05f, 0.05f);
-        InvokeRepeating("dropSand", 0, 0.5f);
+        InvokeRepeating("dropSand", 0, 1f);
         fix = 0;
 		begin = Time.time;
 		//goLeft();
@@ -24,12 +26,22 @@ public class LevelGen : MonoBehaviour {
 
     void dropSand()
     {
+		if (!alive)
+			return;
+
         GameObject ob = Instantiate(sand);
-        ob.transform.position = Camera.main.ViewportToWorldPoint(new Vector3(Random.value, 1, 10));
+		ob.transform.position = Camera.main.ViewportToWorldPoint(new Vector3(1, Random.value, 10));
+		Rigidbody2D body = ob.GetComponent<Rigidbody2D>();
+
+		body.isKinematic = true;
+		body.velocity = Vector3.left * 5f;
     }
 
     void IncreaseCamera()
     {
+		if (!alive)
+			return;
+
 		Vector3 v = Vector3.up * 0.05f;
 
 		if (Time.time - begin > 5 && Time.time - begin < 13)
@@ -53,7 +65,7 @@ public class LevelGen : MonoBehaviour {
 
 	public void StopCamera()
 	{
-		StopAllCoroutines();
+		alive = false;
 	}
 
     void platGen()
