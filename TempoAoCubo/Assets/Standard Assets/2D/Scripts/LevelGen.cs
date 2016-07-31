@@ -18,7 +18,7 @@ public class LevelGen : MonoBehaviour {
         template = GameObject.FindGameObjectWithTag("Platform");
         //InvokeRepeating("platGen", 0, 5);
         InvokeRepeating("IncreaseCamera", 0.05f, 0.05f);
-        InvokeRepeating("dropSand", 0, 1f);
+        InvokeRepeating("dropSand", 0, 4f);
         fix = 0;
 		begin = Time.time;
 		//goLeft();

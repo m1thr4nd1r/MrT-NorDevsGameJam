@@ -187,7 +187,7 @@ namespace UnityStandardAssets._2D
 			}
 			else if (c.collider.name.Contains("Sand"))
 			{
-				AudioSource.PlayClipAtPoint(Resources.Load<AudioClip>("Mr T Hurt 02"), transform.position);
+				AudioSource.PlayClipAtPoint(Resources.Load<AudioClip>("Mr T Death 01"), transform.position);
 				//LevelGen t = Camera.main.gameObject.GetComponent<LevelGen>();
 				//t.StopCamera();
 
